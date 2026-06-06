@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MindGuard AI - AI-powered mental wellness platform for students preparing for high-pressure examinations. Track mood, wellness scores, and get personalized AI support.">
+    <meta name="keywords" content="mental health, wellness, students, exam stress, AI coach, mood tracking">
     <title>MindGuard AI - Mental Wellness Tracker for Students</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -247,6 +249,59 @@
             background: var(--primary);
             cursor: pointer;
             box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Focus styles for accessibility */
+        button:focus,
+        .mood-option:focus,
+        .slider:focus,
+        .journal-textarea:focus {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .nav-tab:focus {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.3s;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Visually hidden class for screen readers */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         .slider-value {
@@ -611,296 +666,325 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container">
-        <header>
-            <div class="logo">🧠 MindGuard AI</div>
+        <header role="banner">
+            <h1 class="logo">🧠 MindGuard AI</h1>
             <div class="header-controls">
-                <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Theme</button>
-                <div class="achievement-badge">
-                    <span class="achievement-icon">🔥</span>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark/light theme">
+                    <span aria-hidden="true">🌙/☀️</span> Theme
+                </button>
+                <div class="achievement-badge" role="status" aria-live="polite">
+                    <span class="achievement-icon" aria-hidden="true">🔥</span>
                     <span id="streakCount">0</span> Day Streak
                 </div>
-                <div class="achievement-badge">
-                    <span class="achievement-icon">⭐</span>
+                <div class="achievement-badge" role="status" aria-live="polite">
+                    <span class="achievement-icon" aria-hidden="true">⭐</span>
                     <span id="xpCount">0</span> XP
                 </div>
             </div>
         </header>
 
-        <nav class="nav-tabs">
-            <button class="nav-tab active" onclick="showSection('dashboard')">📊 Dashboard</button>
-            <button class="nav-tab" onclick="showSection('mood')">😊 Mood Check-in</button>
-            <button class="nav-tab" onclick="showSection('journal')">📝 Journal</button>
-            <button class="nav-tab" onclick="showSection('coach')">🤖 AI Coach</button>
-            <button class="nav-tab" onclick="showSection('insights')">💡 Insights</button>
-            <button class="nav-tab" onclick="showSection('achievements')">🏆 Achievements</button>
-            <button class="nav-tab" onclick="showSection('emergency')">🆘 Emergency</button>
+        <nav role="navigation" aria-label="Main navigation" class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('dashboard')" aria-current="page" aria-controls="dashboard">
+                <span aria-hidden="true">📊</span> Dashboard
+            </button>
+            <button class="nav-tab" onclick="showSection('mood')" aria-controls="mood">
+                <span aria-hidden="true">😊</span> Mood Check-in
+            </button>
+            <button class="nav-tab" onclick="showSection('journal')" aria-controls="journal">
+                <span aria-hidden="true">📝</span> Journal
+            </button>
+            <button class="nav-tab" onclick="showSection('coach')" aria-controls="coach">
+                <span aria-hidden="true">🤖</span> AI Coach
+            </button>
+            <button class="nav-tab" onclick="showSection('insights')" aria-controls="insights">
+                <span aria-hidden="true">💡</span> Insights
+            </button>
+            <button class="nav-tab" onclick="showSection('achievements')" aria-controls="achievements">
+                <span aria-hidden="true">🏆</span> Achievements
+            </button>
+            <button class="nav-tab" onclick="showSection('emergency')" aria-controls="emergency">
+                <span aria-hidden="true">🆘</span> Emergency
+            </button>
         </nav>
 
         <!-- Dashboard Section -->
-        <section id="dashboard" class="section">
-            <div class="grid">
-                <div class="card">
-                    <h2>🎯 Mental Wellness Score</h2>
-                    <div class="wellness-score">
-                        <div class="score-circle" id="scoreCircle">
-                            <span class="score-value" id="wellnessScore">--</span>
-                        </div>
-                        <div class="score-category" id="scoreCategory">Check in to see your score</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h2>📈 Today's Metrics</h2>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="todayMood">--</div>
-                            <div class="stat-label">Mood</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="todaySleep">--</div>
-                            <div class="stat-label">Sleep</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="todayEnergy">--</div>
-                            <div class="stat-label">Energy</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="todayStress">--</div>
-                            <div class="stat-label">Stress</div>
+        <main id="main-content" role="main">
+            <section id="dashboard" class="section" aria-labelledby="dashboard-heading">
+                <h2 id="dashboard-heading" class="visually-hidden">Dashboard</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h2>🎯 Mental Wellness Score</h2>
+                        <div class="wellness-score" role="img" aria-label="Wellness score visualization">
+                            <div class="score-circle" id="scoreCircle" aria-hidden="true">
+                                <span class="score-value" id="wellnessScore">--</span>
+                            </div>
+                            <div class="score-category" id="scoreCategory" aria-live="polite">Check in to see your score</div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="grid">
-                <div class="card">
-                    <h2>🔥 Burnout Risk</h2>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="burnoutRisk">--</div>
-                            <div class="stat-label">Burnout Risk</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="anxietyRisk">--</div>
-                            <div class="stat-label">Anxiety Risk</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="emotionalStability">--</div>
-                            <div class="stat-label">Emotional Stability</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="motivationScore">--</div>
-                            <div class="stat-label">Motivation</div>
+                    <div class="card">
+                        <h2>📈 Today's Metrics</h2>
+                        <div class="stat-grid" role="list" aria-label="Today's wellness metrics">
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="todayMood" aria-live="polite">--</div>
+                                <div class="stat-label">Mood</div>
+                            </div>
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="todaySleep" aria-live="polite">--</div>
+                                <div class="stat-label">Sleep</div>
+                            </div>
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="todayEnergy" aria-live="polite">--</div>
+                                <div class="stat-label">Energy</div>
+                            </div>
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="todayStress" aria-live="polite">--</div>
+                                <div class="stat-label">Stress</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h2>🎯 Stress Triggers</h2>
-                    <div id="stressTriggers">
-                        <p>Check in regularly to identify your stress triggers</p>
+                <div class="grid">
+                    <div class="card">
+                        <h2>🔥 Burnout Risk</h2>
+                        <div class="stat-grid" role="list" aria-label="Risk assessment metrics">
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="burnoutRisk" aria-live="polite">--</div>
+                                <div class="stat-label">Burnout Risk</div>
+                            </div>
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="anxietyRisk" aria-live="polite">--</div>
+                                <div class="stat-label">Anxiety Risk</div>
+                            </div>
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="emotionalStability" aria-live="polite">--</div>
+                                <div class="stat-label">Emotional Stability</div>
+                            </div>
+                            <div class="stat-item" role="listitem">
+                                <div class="stat-value" id="motivationScore" aria-live="polite">--</div>
+                                <div class="stat-label">Motivation</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>🎯 Stress Triggers</h2>
+                        <div id="stressTriggers" role="list" aria-live="polite">
+                            <p>Check in regularly to identify your stress triggers</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <h2>📊 Mood Trends (Last 7 Days)</h2>
-                <div class="chart-container">
-                    <canvas id="moodChart"></canvas>
+                <div class="card">
+                    <h2>📊 Mood Trends (Last 7 Days)</h2>
+                    <div class="chart-container" role="img" aria-label="Line chart showing mood trends over the last 7 days">
+                        <canvas id="moodChart" aria-hidden="true"></canvas>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <h2>📈 Wellness Analytics</h2>
-                <div class="chart-container">
-                    <canvas id="wellnessChart"></canvas>
+                <div class="card">
+                    <h2>📈 Wellness Analytics</h2>
+                    <div class="chart-container" role="img" aria-label="Bar chart showing wellness analytics over time">
+                        <canvas id="wellnessChart" aria-hidden="true"></canvas>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
         <!-- Mood Check-in Section -->
-        <section id="mood" class="section hidden">
+        <section id="mood" class="section hidden" aria-labelledby="mood-heading">
+            <h2 id="mood-heading" class="visually-hidden">Mood Check-in</h2>
             <div class="card">
                 <h2>😊 How are you feeling today?</h2>
-                <div class="mood-selector" id="moodSelector">
-                    <div class="mood-option" data-mood="excellent" data-score="100">
-                        <span class="mood-emoji">😄</span>
+                <div class="mood-selector" id="moodSelector" role="radiogroup" aria-label="Select your mood">
+                    <button class="mood-option" data-mood="excellent" data-score="100" role="radio" aria-checked="false" aria-label="Excellent mood, score 100">
+                        <span class="mood-emoji" aria-hidden="true">😄</span>
                         <span class="mood-label">Excellent</span>
-                    </div>
-                    <div class="mood-option" data-mood="happy" data-score="90">
-                        <span class="mood-emoji">😊</span>
+                    </button>
+                    <button class="mood-option" data-mood="happy" data-score="90" role="radio" aria-checked="false" aria-label="Happy mood, score 90">
+                        <span class="mood-emoji" aria-hidden="true">😊</span>
                         <span class="mood-label">Happy</span>
-                    </div>
-                    <div class="mood-option" data-mood="good" data-score="80">
-                        <span class="mood-emoji">🙂</span>
+                    </button>
+                    <button class="mood-option" data-mood="good" data-score="80" role="radio" aria-checked="false" aria-label="Good mood, score 80">
+                        <span class="mood-emoji" aria-hidden="true">🙂</span>
                         <span class="mood-label">Good</span>
-                    </div>
-                    <div class="mood-option" data-mood="calm" data-score="75">
-                        <span class="mood-emoji">😌</span>
+                    </button>
+                    <button class="mood-option" data-mood="calm" data-score="75" role="radio" aria-checked="false" aria-label="Calm mood, score 75">
+                        <span class="mood-emoji" aria-hidden="true">😌</span>
                         <span class="mood-label">Calm</span>
-                    </div>
-                    <div class="mood-option" data-mood="neutral" data-score="60">
-                        <span class="mood-emoji">😐</span>
+                    </button>
+                    <button class="mood-option" data-mood="neutral" data-score="60" role="radio" aria-checked="false" aria-label="Neutral mood, score 60">
+                        <span class="mood-emoji" aria-hidden="true">😐</span>
                         <span class="mood-label">Neutral</span>
-                    </div>
-                    <div class="mood-option" data-mood="slightly-stressed" data-score="50">
-                        <span class="mood-emoji">😕</span>
+                    </button>
+                    <button class="mood-option" data-mood="slightly-stressed" data-score="50" role="radio" aria-checked="false" aria-label="Slightly stressed mood, score 50">
+                        <span class="mood-emoji" aria-hidden="true">😕</span>
                         <span class="mood-label">Slightly Stressed</span>
-                    </div>
-                    <div class="mood-option" data-mood="stressed" data-score="40">
-                        <span class="mood-emoji">😟</span>
+                    </button>
+                    <button class="mood-option" data-mood="stressed" data-score="40" role="radio" aria-checked="false" aria-label="Stressed mood, score 40">
+                        <span class="mood-emoji" aria-hidden="true">😟</span>
                         <span class="mood-label">Stressed</span>
-                    </div>
-                    <div class="mood-option" data-mood="sad" data-score="30">
-                        <span class="mood-emoji">😔</span>
+                    </button>
+                    <button class="mood-option" data-mood="sad" data-score="30" role="radio" aria-checked="false" aria-label="Sad mood, score 30">
+                        <span class="mood-emoji" aria-hidden="true">😔</span>
                         <span class="mood-label">Sad</span>
-                    </div>
-                    <div class="mood-option" data-mood="anxious" data-score="25">
-                        <span class="mood-emoji">😣</span>
+                    </button>
+                    <button class="mood-option" data-mood="anxious" data-score="25" role="radio" aria-checked="false" aria-label="Anxious mood, score 25">
+                        <span class="mood-emoji" aria-hidden="true">😣</span>
                         <span class="mood-label">Anxious</span>
-                    </div>
-                    <div class="mood-option" data-mood="burned-out" data-score="15">
-                        <span class="mood-emoji">😫</span>
+                    </button>
+                    <button class="mood-option" data-mood="burned-out" data-score="15" role="radio" aria-checked="false" aria-label="Burned out mood, score 15">
+                        <span class="mood-emoji" aria-hidden="true">😫</span>
                         <span class="mood-label">Burned Out</span>
-                    </div>
-                    <div class="mood-option" data-mood="depressed" data-score="10">
-                        <span class="mood-emoji">😢</span>
+                    </button>
+                    <button class="mood-option" data-mood="depressed" data-score="10" role="radio" aria-checked="false" aria-label="Depressed mood, score 10">
+                        <span class="mood-emoji" aria-hidden="true">😢</span>
                         <span class="mood-label">Depressed</span>
-                    </div>
-                    <div class="mood-option" data-mood="severe-distress" data-score="5">
-                        <span class="mood-emoji">😭</span>
+                    </button>
+                    <button class="mood-option" data-mood="severe-distress" data-score="5" role="radio" aria-checked="false" aria-label="Severe distress mood, score 5">
+                        <span class="mood-emoji" aria-hidden="true">😭</span>
                         <span class="mood-label">Severe Distress</span>
-                    </div>
+                    </button>
                 </div>
 
                 <div class="slider-container">
-                    <label>😴 Sleep Quality (0-100%)</label>
-                    <input type="range" class="slider" id="sleepSlider" min="0" max="100" value="70">
-                    <div class="slider-value" id="sleepValue">70%</div>
+                    <label for="sleepSlider">😴 Sleep Quality (0-100%): <span id="sleepValue" aria-live="polite">70%</span></label>
+                    <input type="range" class="slider" id="sleepSlider" min="0" max="100" value="70" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70" aria-valuetext="70%">
                 </div>
 
                 <div class="slider-container">
-                    <label>⚡ Energy Level (0-100%)</label>
-                    <input type="range" class="slider" id="energySlider" min="0" max="100" value="60">
-                    <div class="slider-value" id="energyValue">60%</div>
+                    <label for="energySlider">⚡ Energy Level (0-100%): <span id="energyValue" aria-live="polite">60%</span></label>
+                    <input type="range" class="slider" id="energySlider" min="0" max="100" value="60" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" aria-valuetext="60%">
                 </div>
 
                 <div class="slider-container">
-                    <label>💪 Confidence Level (0-100%)</label>
-                    <input type="range" class="slider" id="confidenceSlider" min="0" max="100" value="65">
-                    <div class="slider-value" id="confidenceValue">65%</div>
+                    <label for="confidenceSlider">💪 Confidence Level (0-100%): <span id="confidenceValue" aria-live="polite">65%</span></label>
+                    <input type="range" class="slider" id="confidenceSlider" min="0" max="100" value="65" aria-valuemin="0" aria-valuemax="100" aria-valuenow="65" aria-valuetext="65%">
                 </div>
 
                 <div class="slider-container">
-                    <label>😰 Stress Level (0-100%)</label>
-                    <input type="range" class="slider" id="stressSlider" min="0" max="100" value="40">
-                    <div class="slider-value" id="stressValue">40%</div>
+                    <label for="stressSlider">😰 Stress Level (0-100%): <span id="stressValue" aria-live="polite">40%</span></label>
+                    <input type="range" class="slider" id="stressSlider" min="0" max="100" value="40" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40%">
                 </div>
 
                 <div class="slider-container">
-                    <label>📚 Study Productivity (0-100%)</label>
-                    <input type="range" class="slider" id="productivitySlider" min="0" max="100" value="55">
-                    <div class="slider-value" id="productivityValue">55%</div>
+                    <label for="productivitySlider">📚 Study Productivity (0-100%): <span id="productivityValue" aria-live="polite">55%</span></label>
+                    <input type="range" class="slider" id="productivitySlider" min="0" max="100" value="55" aria-valuemin="0" aria-valuemax="100" aria-valuenow="55" aria-valuetext="55%">
                 </div>
 
-                <button class="btn" onclick="submitMoodCheckIn()">Submit Check-in</button>
+                <button class="btn" onclick="submitMoodCheckIn()" aria-label="Submit mood check-in">Submit Check-in</button>
             </div>
         </section>
 
         <!-- Journal Section -->
-        <section id="journal" class="section hidden">
+        <section id="journal" class="section hidden" aria-labelledby="journal-heading">
+            <h2 id="journal-heading" class="visually-hidden">Journal</h2>
             <div class="card">
                 <h2>📝 AI Emotional Journal</h2>
                 <p style="margin-bottom: 15px; opacity: 0.8;">Write freely about your thoughts and feelings. Our AI will analyze your emotions.</p>
-                <textarea class="journal-textarea" id="journalEntry" placeholder="How are you really feeling today? What's on your mind? Write whatever comes to mind..."></textarea>
-                <div id="journalSentiment" style="margin-top: 15px;"></div>
-                <button class="btn" onclick="submitJournal()" style="margin-top: 15px;">Save Entry</button>
+                <label for="journalEntry" class="visually-hidden">Journal entry</label>
+                <textarea class="journal-textarea" id="journalEntry" placeholder="How are you really feeling today? What's on your mind? Write whatever comes to mind..." aria-describedby="journalHelp"></textarea>
+                <p id="journalHelp" class="visually-hidden">Write your thoughts and feelings. Your entry will be analyzed for emotional sentiment.</p>
+                <div id="journalSentiment" style="margin-top: 15px;" role="status" aria-live="polite"></div>
+                <button class="btn" onclick="submitJournal()" style="margin-top: 15px;" aria-label="Save journal entry">Save Entry</button>
             </div>
 
             <div class="card">
                 <h2>📚 Recent Journal Entries</h2>
-                <div id="journalHistory">
+                <div id="journalHistory" role="list" aria-live="polite">
                     <p>No journal entries yet. Start writing to track your emotional journey.</p>
                 </div>
             </div>
         </section>
 
         <!-- AI Coach Section -->
-        <section id="coach" class="section hidden">
+        <section id="coach" class="section hidden" aria-labelledby="coach-heading">
+            <h2 id="coach-heading" class="visually-hidden">AI Coach</h2>
             <div class="card">
                 <h2>🤖 AI Wellness Coach</h2>
-                <div id="coachMessages">
+                <div id="coachMessages" role="log" aria-live="polite" aria-label="AI coach messages">
                     <div class="coach-message">
                         <h3>👋 Welcome to MindGuard AI!</h3>
                         <p>I'm your personal wellness coach. I'm here to support you through your exam preparation journey. Check in daily, and I'll provide personalized guidance to help you maintain mental well-being while achieving your academic goals.</p>
                     </div>
                 </div>
-                <button class="btn" onclick="getCoachAdvice()">Get Personalized Advice</button>
+                <button class="btn" onclick="getCoachAdvice()" aria-label="Get personalized advice from AI coach">Get Personalized Advice</button>
             </div>
 
             <div class="card">
                 <h2>🧘 Quick Exercises</h2>
-                <div class="grid">
-                    <button class="btn btn-secondary" onclick="startBreathingExercise()">🫁 Breathing Exercise</button>
-                    <button class="btn btn-secondary" onclick="showMeditation()">🧘 Meditation Guide</button>
-                    <button class="btn btn-secondary" onclick="showStretching()">🤸 Stretching Break</button>
-                    <button class="btn btn-secondary" onclick="showGratitude()">🙏 Gratitude Practice</button>
+                <div class="grid" role="list" aria-label="Wellness exercises">
+                    <button class="btn btn-secondary" onclick="startBreathingExercise()" aria-label="Start breathing exercise">
+                        <span aria-hidden="true">🫁</span> Breathing Exercise
+                    </button>
+                    <button class="btn btn-secondary" onclick="showMeditation()" aria-label="View meditation guide">
+                        <span aria-hidden="true">🧘</span> Meditation Guide
+                    </button>
+                    <button class="btn btn-secondary" onclick="showStretching()" aria-label="View stretching break exercises">
+                        <span aria-hidden="true">🤸</span> Stretching Break
+                    </button>
+                    <button class="btn btn-secondary" onclick="showGratitude()" aria-label="View gratitude practice">
+                        <span aria-hidden="true">🙏</span> Gratitude Practice
+                    </button>
                 </div>
             </div>
         </section>
 
         <!-- Insights Section -->
-        <section id="insights" class="section hidden">
+        <section id="insights" class="section hidden" aria-labelledby="insights-heading">
+            <h2 id="insights-heading" class="visually-hidden">Insights</h2>
             <div class="card">
                 <h2>💡 AI Insights Engine</h2>
-                <div id="insightsList">
+                <div id="insightsList" role="list" aria-live="polite">
                     <p>Check in regularly to generate personalized insights about your mental health patterns.</p>
                 </div>
             </div>
 
             <div class="card">
                 <h2>🎯 Stress Trigger Analysis</h2>
-                <div id="triggerAnalysis">
+                <div id="triggerAnalysis" role="list" aria-live="polite">
                     <p>Continue tracking to identify your personal stress triggers.</p>
                 </div>
             </div>
 
             <div class="card">
                 <h2>📊 Weekly Wellness Report</h2>
-                <div id="weeklyReport">
+                <div id="weeklyReport" role="region" aria-live="polite">
                     <p>Complete daily check-ins for a full week to generate your wellness report.</p>
                 </div>
             </div>
         </section>
 
         <!-- Achievements Section -->
-        <section id="achievements" class="section hidden">
+        <section id="achievements" class="section hidden" aria-labelledby="achievements-heading">
+            <h2 id="achievements-heading" class="visually-hidden">Achievements</h2>
             <div class="card">
                 <h2>🏆 Gamification & Achievements</h2>
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="streak-counter" id="streakDisplay">0</div>
+                <div class="stat-grid" role="list" aria-label="Gamification statistics">
+                    <div class="stat-item" role="listitem">
+                        <div class="streak-counter" id="streakDisplay" aria-live="polite">0</div>
                         <div class="stat-label">Day Streak</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="xpDisplay">0</div>
+                    <div class="stat-item" role="listitem">
+                        <div class="stat-value" id="xpDisplay" aria-live="polite">0</div>
                         <div class="stat-label">Total XP</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="checkinsDisplay">0</div>
+                    <div class="stat-item" role="listitem">
+                        <div class="stat-value" id="checkinsDisplay" aria-live="polite">0</div>
                         <div class="stat-label">Total Check-ins</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="levelDisplay">1</div>
+                    <div class="stat-item" role="listitem">
+                        <div class="stat-value" id="levelDisplay" aria-live="polite">1</div>
                         <div class="stat-label">Current Level</div>
                     </div>
                 </div>
 
                 <div style="margin-top: 20px;">
                     <h3>Level Progress</h3>
-                    <div class="xp-bar">
-                        <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+                    <div class="xp-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Experience points progress">
+                        <div class="xp-fill" id="xpFill" style="width: 0%" aria-hidden="true"></div>
                     </div>
                     <p style="margin-top: 10px; opacity: 0.8;"><span id="currentXP">0</span> / <span id="nextLevelXP">100</span> XP</p>
                 </div>
@@ -908,29 +992,29 @@
 
             <div class="card">
                 <h2>🎖️ Badges</h2>
-                <div id="badgesList">
-                    <div class="achievement-badge">
-                        <span class="achievement-icon">🌟</span>
+                <div id="badgesList" role="list" aria-label="Achievement badges">
+                    <div class="achievement-badge" role="listitem">
+                        <span class="achievement-icon" aria-hidden="true">🌟</span>
                         First Check-in
                     </div>
-                    <div class="achievement-badge" style="opacity: 0.5;">
-                        <span class="achievement-icon">🔥</span>
+                    <div class="achievement-badge" style="opacity: 0.5;" role="listitem" aria-label="7-Day Streak badge, not yet earned">
+                        <span class="achievement-icon" aria-hidden="true">🔥</span>
                         7-Day Streak
                     </div>
-                    <div class="achievement-badge" style="opacity: 0.5;">
-                        <span class="achievement-icon">💪</span>
+                    <div class="achievement-badge" style="opacity: 0.5;" role="listitem" aria-label="30-Day Streak badge, not yet earned">
+                        <span class="achievement-icon" aria-hidden="true">💪</span>
                         30-Day Streak
                     </div>
-                    <div class="achievement-badge" style="opacity: 0.5;">
-                        <span class="achievement-icon">🧘</span>
+                    <div class="achievement-badge" style="opacity: 0.5;" role="listitem" aria-label="Mindful Master badge, not yet earned">
+                        <span class="achievement-icon" aria-hidden="true">🧘</span>
                         Mindful Master
                     </div>
-                    <div class="achievement-badge" style="opacity: 0.5;">
-                        <span class="achievement-icon">📝</span>
+                    <div class="achievement-badge" style="opacity: 0.5;" role="listitem" aria-label="Journal Keeper badge, not yet earned">
+                        <span class="achievement-icon" aria-hidden="true">📝</span>
                         Journal Keeper
                     </div>
-                    <div class="achievement-badge" style="opacity: 0.5;">
-                        <span class="achievement-icon">🎯</span>
+                    <div class="achievement-badge" style="opacity: 0.5;" role="listitem" aria-label="Focus Champion badge, not yet earned">
+                        <span class="achievement-icon" aria-hidden="true">🎯</span>
                         Focus Champion
                     </div>
                 </div>
@@ -938,39 +1022,40 @@
         </section>
 
         <!-- Emergency Section -->
-        <section id="emergency" class="section hidden">
-            <div class="card crisis-mode" id="crisisCard" style="display: none;">
+        <section id="emergency" class="section hidden" aria-labelledby="emergency-heading">
+            <h2 id="emergency-heading" class="visually-hidden">Emergency Support</h2>
+            <div class="card crisis-mode" id="crisisCard" style="display: none;" role="alert" aria-live="assertive">
                 <h2>🆘 Crisis Mode Activated</h2>
                 <p style="margin-bottom: 20px;">Your wellness score indicates you need immediate support. Please use these resources:</p>
                 
-                <div class="breathing-circle" id="breathingCircle">
+                <div class="breathing-circle" id="breathingCircle" aria-hidden="true">
                     Breathe
                 </div>
                 
-                <button class="btn" onclick="startBreathingExercise()">Start Calm Breathing</button>
+                <button class="btn" onclick="startBreathingExercise()" aria-label="Start calm breathing exercise">Start Calm Breathing</button>
             </div>
 
             <div class="card">
                 <h2>🆘 Emergency Support</h2>
                 <p style="margin-bottom: 20px;">If you're in crisis, please reach out for help immediately:</p>
                 
-                <div class="emergency-contacts">
-                    <div class="contact-card">
+                <div class="emergency-contacts" role="list" aria-label="Emergency contact resources">
+                    <div class="contact-card" role="listitem">
                         <h4>📞 Crisis Helpline</h4>
                         <p>Call: 988 (US)</p>
                         <p>Available 24/7</p>
                     </div>
-                    <div class="contact-card">
+                    <div class="contact-card" role="listitem">
                         <h4>💬 Crisis Text Line</h4>
                         <p>Text: HOME to 741741</p>
                         <p>Available 24/7</p>
                     </div>
-                    <div class="contact-card">
+                    <div class="contact-card" role="listitem">
                         <h4>🌐 International</h4>
-                        <p><a href="https://findahelpline.com" target="_blank">findahelpline.com</a></p>
+                        <p><a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer">findahelpline.com</a></p>
                         <p>Global resources</p>
                     </div>
-                    <div class="contact-card">
+                    <div class="contact-card" role="listitem">
                         <h4>👨‍⚕️ Professional Help</h4>
                         <p>Contact your counselor</p>
                         <p>or mental health professional</p>
@@ -980,12 +1065,12 @@
 
             <div class="card">
                 <h2>🧘 Grounding Exercises</h2>
-                <button class="btn btn-secondary" onclick="show5432Method()">5-4-3-2-1 Grounding</button>
-                <button class="btn btn-secondary" onclick="startBreathingExercise()">Box Breathing</button>
-                <button class="btn btn-secondary" onclick="showProgressiveRelaxation()">Progressive Muscle Relaxation</button>
+                <button class="btn btn-secondary" onclick="show5432Method()" aria-label="Start 5-4-3-2-1 grounding technique">5-4-3-2-1 Grounding</button>
+                <button class="btn btn-secondary" onclick="startBreathingExercise()" aria-label="Start box breathing exercise">Box Breathing</button>
+                <button class="btn btn-secondary" onclick="showProgressiveRelaxation()" aria-label="Start progressive muscle relaxation">Progressive Muscle Relaxation</button>
             </div>
         </section>
-    </div>
+        </main>
 
     <script>
         // State Management
@@ -1003,16 +1088,31 @@
 
         // Load state from localStorage
         function loadState() {
-            const savedState = localStorage.getItem('mindguardState');
-            if (savedState) {
-                state = { ...state, ...JSON.parse(savedState) };
+            try {
+                const savedState = localStorage.getItem('mindguardState');
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    // Validate the parsed state structure
+                    if (parsedState && typeof parsedState === 'object') {
+                        state = { ...state, ...parsedState };
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading state from localStorage:', error);
+                // Use default state if loading fails
+                localStorage.removeItem('mindguardState');
             }
             updateUI();
         }
 
         // Save state to localStorage
         function saveState() {
-            localStorage.setItem('mindguardState', JSON.stringify(state));
+            try {
+                localStorage.setItem('mindguardState', JSON.stringify(state));
+            } catch (error) {
+                console.error('Error saving state to localStorage:', error);
+                alert('Unable to save your data. Please check your browser settings.');
+            }
         }
 
         // Theme Toggle
@@ -1026,20 +1126,29 @@
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
+                section.setAttribute('aria-hidden', 'true');
             });
-            document.getElementById(sectionId).classList.remove('hidden');
+            const targetSection = document.getElementById(sectionId);
+            targetSection.classList.remove('hidden');
+            targetSection.setAttribute('aria-hidden', 'false');
             
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
+                tab.removeAttribute('aria-current');
             });
             event.target.classList.add('active');
+            event.target.setAttribute('aria-current', 'page');
         }
 
         // Mood Selection
         document.querySelectorAll('.mood-option').forEach(option => {
             option.addEventListener('click', function() {
-                document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelectorAll('.mood-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.setAttribute('aria-checked', 'false');
+                });
                 this.classList.add('selected');
+                this.setAttribute('aria-checked', 'true');
                 state.selectedMood = {
                     mood: this.dataset.mood,
                     score: parseInt(this.dataset.score)
@@ -1054,6 +1163,9 @@
                 if (valueSpan) {
                     valueSpan.textContent = this.value + '%';
                 }
+                // Update ARIA attributes for accessibility
+                this.setAttribute('aria-valuenow', this.value);
+                this.setAttribute('aria-valuetext', this.value + '%');
             });
         });
 
@@ -1064,15 +1176,31 @@
                 return;
             }
 
+            // Validate all slider inputs
+            const sleep = parseInt(document.getElementById('sleepSlider').value);
+            const energy = parseInt(document.getElementById('energySlider').value);
+            const confidence = parseInt(document.getElementById('confidenceSlider').value);
+            const stress = parseInt(document.getElementById('stressSlider').value);
+            const productivity = parseInt(document.getElementById('productivitySlider').value);
+
+            if (!validateNumber(sleep, 0, 100) || 
+                !validateNumber(energy, 0, 100) || 
+                !validateNumber(confidence, 0, 100) || 
+                !validateNumber(stress, 0, 100) || 
+                !validateNumber(productivity, 0, 100)) {
+                alert('Please ensure all values are between 0 and 100');
+                return;
+            }
+
             const entry = {
                 date: new Date().toISOString(),
                 mood: state.selectedMood.mood,
                 moodScore: state.selectedMood.score,
-                sleep: parseInt(document.getElementById('sleepSlider').value),
-                energy: parseInt(document.getElementById('energySlider').value),
-                confidence: parseInt(document.getElementById('confidenceSlider').value),
-                stress: parseInt(document.getElementById('stressSlider').value),
-                productivity: parseInt(document.getElementById('productivitySlider').value)
+                sleep: sleep,
+                energy: energy,
+                confidence: confidence,
+                stress: stress,
+                productivity: productivity
             };
 
             // Calculate Wellness Score
@@ -1097,29 +1225,58 @@
             generateInsights();
             
             // Reset form
-            document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.remove('selected');
+                opt.setAttribute('aria-checked', 'false');
+            });
             state.selectedMood = null;
             
             alert('Check-in submitted successfully! +10 XP');
             showSection('dashboard');
         }
 
-        // Calculate Wellness Score
+        // Calculate Wellness Score - Enhanced Algorithm
         function calculateWellnessScore(entry) {
-            const moodWeight = 0.40;
-            const sleepWeight = 0.20;
-            const energyWeight = 0.15;
+            // Enhanced weights based on psychological research
+            const moodWeight = 0.35;      // Slightly reduced to balance other factors
+            const sleepWeight = 0.25;     // Increased - sleep is critical for students
+            const energyWeight = 0.15;    
             const confidenceWeight = 0.15;
-            const stressWeight = 0.10;
+            const stressWeight = 0.10;     // Stress inverse
 
+            // Calculate stress inverse (higher stress = lower score)
             const stressInverse = 100 - entry.stress;
             
-            const score = 
+            // Base calculation
+            let score = 
                 (entry.moodScore * moodWeight) +
                 (entry.sleep * sleepWeight) +
                 (entry.energy * energyWeight) +
                 (entry.confidence * confidenceWeight) +
                 (stressInverse * stressWeight);
+
+            // Bonus for high productivity (indicates engagement)
+            if (entry.productivity > 70) {
+                score += 3;
+            }
+
+            // Penalty for extreme stress levels
+            if (entry.stress > 80) {
+                score -= 5;
+            }
+
+            // Bonus for good sleep (critical for mental health)
+            if (entry.sleep >= 80) {
+                score += 2;
+            }
+
+            // Penalty for poor sleep
+            if (entry.sleep < 40) {
+                score -= 3;
+            }
+
+            // Ensure score stays within bounds
+            score = Math.max(0, Math.min(100, score));
 
             return Math.round(score);
         }
@@ -1131,6 +1288,84 @@
             if (score >= 40) return { label: 'Needs Attention', class: 'attention' };
             if (score >= 20) return { label: 'High Risk', class: 'high-risk' };
             return { label: 'Critical', class: 'critical' };
+        }
+
+        // Calculate Burnout Risk - Enhanced Algorithm
+        function calculateBurnoutRisk(currentEntry, allEntries) {
+            let risk = 100 - currentEntry.wellnessScore;
+            
+            // Factor in trend analysis if we have historical data
+            if (allEntries.length >= 3) {
+                const recentEntries = allEntries.slice(-7);
+                const avgWellness = recentEntries.reduce((sum, e) => sum + e.wellnessScore, 0) / recentEntries.length;
+                const recentAvg = recentEntries.slice(-3).reduce((sum, e) => sum + e.wellnessScore, 0) / 3;
+                
+                // If declining trend, increase risk
+                if (recentAvg < avgWellness - 10) {
+                    risk += 10;
+                }
+                // If improving trend, decrease risk
+                if (recentAvg > avgWellness + 10) {
+                    risk -= 10;
+                }
+            }
+            
+            // High stress significantly increases burnout risk
+            if (currentEntry.stress > 70) {
+                risk += 15;
+            }
+            
+            // Poor sleep increases burnout risk
+            if (currentEntry.sleep < 50) {
+                risk += 10;
+            }
+            
+            // Low energy increases burnout risk
+            if (currentEntry.energy < 40) {
+                risk += 10;
+            }
+            
+            // Ensure risk stays within bounds
+            return Math.max(0, Math.min(100, Math.round(risk)));
+        }
+
+        // Calculate Anxiety Risk - Enhanced Algorithm
+        function calculateAnxietyRisk(currentEntry, allEntries) {
+            let risk = currentEntry.stress * 1.2;
+            
+            // Factor in mood
+            if (currentEntry.moodScore < 50) {
+                risk += 15;
+            }
+            
+            // Factor in confidence
+            if (currentEntry.confidence < 40) {
+                risk += 10;
+            }
+            
+            // Factor in sleep quality
+            if (currentEntry.sleep < 50) {
+                risk += 10;
+            }
+            
+            // Check for anxiety patterns in journal entries
+            const anxietyKeywords = ['anxious', 'worried', 'nervous', 'panic', 'fear', 'scared', 'overwhelmed'];
+            const recentJournals = state.journalEntries.slice(-5);
+            let anxietyInJournal = 0;
+            
+            recentJournals.forEach(entry => {
+                const words = entry.text.toLowerCase().split(/\s+/);
+                anxietyKeywords.forEach(keyword => {
+                    if (words.includes(keyword)) anxietyInJournal++;
+                });
+            });
+            
+            if (anxietyInJournal > 0) {
+                risk += anxietyInJournal * 5;
+            }
+            
+            // Ensure risk stays within bounds
+            return Math.max(0, Math.min(100, Math.round(risk)));
         }
 
         // Update Streak
@@ -1178,11 +1413,14 @@
                 return;
             }
 
-            const sentiment = analyzeSentiment(entry);
+            // Sanitize input to prevent XSS
+            const sanitizedEntry = sanitizeInput(entry);
+            
+            const sentiment = analyzeSentiment(sanitizedEntry);
             
             const journalEntry = {
                 date: new Date().toISOString(),
-                text: entry,
+                text: sanitizedEntry,
                 sentiment: sentiment
             };
 
@@ -1199,6 +1437,21 @@
             
             document.getElementById('journalEntry').value = '';
             alert('Journal entry saved! +5 XP');
+        }
+
+        // Input sanitization to prevent XSS
+        function sanitizeInput(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML;
+        }
+
+        // Validate numeric input
+        function validateNumber(value, min, max) {
+            const num = parseInt(value);
+            if (isNaN(num)) return false;
+            if (num < min || num > max) return false;
+            return true;
         }
 
         // Simple Sentiment Analysis
@@ -1220,7 +1473,7 @@
             return 'neutral';
         }
 
-        // Get Coach Advice
+        // Get Coach Advice - Enhanced Algorithm
         function getCoachAdvice() {
             const latestEntry = state.moodEntries[state.moodEntries.length - 1];
             let advice = '';
@@ -1228,15 +1481,28 @@
             if (!latestEntry) {
                 advice = "Start by checking in your mood today so I can provide personalized advice!";
             } else if (latestEntry.wellnessScore >= 80) {
-                advice = "You're doing amazing! Keep up the great work. Remember to maintain your healthy habits and celebrate your wins. Consider sharing your success strategies with peers who might benefit.";
+                advice = "You're doing amazing! Keep up the great work. Consider: 1) Sharing your success strategies with peers, 2) Maintaining your healthy sleep schedule, 3) Taking time to celebrate your wins. Your resilience is inspiring!";
             } else if (latestEntry.wellnessScore >= 60) {
-                advice = "You're on the right track! Focus on maintaining your sleep schedule and taking regular study breaks. Try the Pomodoro technique: 25 minutes of focused study followed by a 5-minute break.";
+                advice = "You're on the right track! Focus on maintaining your progress: 1) Use the Pomodoro technique (25 min study + 5 min break), 2) Ensure 7-8 hours of quality sleep, 3) Stay hydrated and take short walks between study sessions. Small consistent actions lead to big results!";
             } else if (latestEntry.wellnessScore >= 40) {
-                advice = "I notice you need some attention. Let's work on reducing stress. Try these: 1) Prioritize your tasks, 2) Take short walks between study sessions, 3) Practice deep breathing exercises, 4) Ensure you're getting 7-8 hours of sleep.";
+                advice = "I notice you need some attention. Let's work together: 1) Prioritize your most important tasks, 2) Take regular breaks every 45-60 minutes, 3) Practice deep breathing exercises (try the 4-7-8 technique), 4) Consider reducing study load temporarily. Your well-being matters more than any exam.";
             } else if (latestEntry.wellnessScore >= 20) {
-                advice = "You're at high risk. Please consider: 1) Reducing your study load temporarily, 2) Talking to a counselor or trusted adult, 3) Practicing self-compassion, 4) Taking a complete break day. Your health comes first.";
+                advice = "You're at high risk. Please consider these steps: 1) Take a complete break day to recharge, 2) Talk to a counselor, parent, or trusted mentor, 3) Practice self-compassion - you're doing your best, 4) Use the grounding exercises in the Emergency section. Remember: seeking help is a sign of strength, not weakness.";
             } else {
-                advice = "CRITICAL: Please reach out for help immediately. Call a crisis helpline, talk to a parent/mentor, or contact a mental health professional. You don't have to face this alone. There is support available.";
+                advice = "CRITICAL: Please reach out for help immediately. Call 988 (US Crisis Helpline), text HOME to 741741, or contact a mental health professional. You don't have to face this alone. There are people who care about you and want to help. Your health and safety come first - exams can wait, your wellbeing cannot.";
+            }
+
+            // Add personalized tips based on specific metrics
+            if (latestEntry) {
+                if (latestEntry.sleep < 50) {
+                    advice += " 💡 Tip: Poor sleep significantly impacts mental health. Try establishing a consistent bedtime routine and avoiding screens 1 hour before bed.";
+                }
+                if (latestEntry.stress > 70) {
+                    advice += " 💡 Tip: High stress levels need attention. Try progressive muscle relaxation or the 5-4-3-2-1 grounding technique from the Emergency section.";
+                }
+                if (latestEntry.energy < 40) {
+                    advice += " 💡 Tip: Low energy may indicate burnout. Consider taking a short walk, eating a nutritious meal, or taking a power nap.";
+                }
             }
 
             const coachMessages = document.getElementById('coachMessages');
@@ -1244,6 +1510,9 @@
             messageDiv.className = 'coach-message';
             messageDiv.innerHTML = `<h3>🤖 AI Coach Advice</h3><p>${advice}</p>`;
             coachMessages.appendChild(messageDiv);
+            
+            // Scroll to latest message
+            coachMessages.scrollTop = coachMessages.scrollHeight;
         }
 
         // Breathing Exercise
@@ -1320,100 +1589,110 @@
 
         // Update UI
         function updateUI() {
-            // Update streak and XP
-            document.getElementById('streakCount').textContent = state.currentStreak;
-            document.getElementById('streakDisplay').textContent = state.currentStreak;
-            document.getElementById('xpCount').textContent = state.totalXP;
-            document.getElementById('xpDisplay').textContent = state.totalXP;
-            document.getElementById('checkinsDisplay').textContent = state.checkins;
-            
-            // Calculate level
-            state.level = Math.floor(state.totalXP / 100) + 1;
-            document.getElementById('levelDisplay').textContent = state.level;
-            
-            // XP progress
-            const xpInLevel = state.totalXP % 100;
-            document.getElementById('currentXP').textContent = xpInLevel;
-            document.getElementById('nextLevelXP').textContent = 100;
-            document.getElementById('xpFill').style.width = xpInLevel + '%';
-
-            // Update badges
-            const badgesList = document.getElementById('badgesList');
-            const allBadges = [
-                { id: 'first-checkin', icon: '🌟', name: 'First Check-in', unlocked: state.checkins >= 1 },
-                { id: '7-day-streak', icon: '🔥', name: '7-Day Streak', unlocked: state.badges.includes('7-day-streak') },
-                { id: '30-day-streak', icon: '💪', name: '30-Day Streak', unlocked: state.badges.includes('30-day-streak') },
-                { id: 'mindful-master', icon: '🧘', name: 'Mindful Master', unlocked: state.checkins >= 10 },
-                { id: 'journal-keeper', icon: '📝', name: 'Journal Keeper', unlocked: state.badges.includes('journal-keeper') },
-                { id: 'focus-champion', icon: '🎯', name: 'Focus Champion', unlocked: state.totalXP >= 200 }
-            ];
-
-            badgesList.innerHTML = allBadges.map(badge => 
-                `<div class="achievement-badge" style="opacity: ${badge.unlocked ? 1 : 0.5};">
-                    <span class="achievement-icon">${badge.icon}</span>
-                    ${badge.name}
-                </div>`
-            ).join('');
-
-            // Update dashboard if we have entries
-            if (state.moodEntries.length > 0) {
-                const latestEntry = state.moodEntries[state.moodEntries.length - 1];
+            try {
+                // Update streak and XP
+                document.getElementById('streakCount').textContent = state.currentStreak;
+                document.getElementById('streakDisplay').textContent = state.currentStreak;
+                document.getElementById('xpCount').textContent = state.totalXP;
+                document.getElementById('xpDisplay').textContent = state.totalXP;
+                document.getElementById('checkinsDisplay').textContent = state.checkins;
                 
-                document.getElementById('wellnessScore').textContent = latestEntry.wellnessScore + '%';
-                document.getElementById('scoreCircle').style.background = 
-                    `conic-gradient(var(--primary) ${latestEntry.wellnessScore}%, var(--dark-border) ${latestEntry.wellnessScore}%)`;
+                // Calculate level
+                state.level = Math.floor(state.totalXP / 100) + 1;
+                document.getElementById('levelDisplay').textContent = state.level;
                 
-                const category = getScoreCategory(latestEntry.wellnessScore);
-                document.getElementById('scoreCategory').textContent = category.label;
-                document.getElementById('scoreCategory').className = 'score-category ' + category.class;
-
-                document.getElementById('todayMood').textContent = latestEntry.moodScore + '%';
-                document.getElementById('todaySleep').textContent = latestEntry.sleep + '%';
-                document.getElementById('todayEnergy').textContent = latestEntry.energy + '%';
-                document.getElementById('todayStress').textContent = latestEntry.stress + '%';
-
-                // Calculate predictions
-                const burnoutRisk = Math.max(0, 100 - latestEntry.wellnessScore);
-                const anxietyRisk = Math.min(100, latestEntry.stress * 1.5);
-                const emotionalStability = latestEntry.wellnessScore;
-                const motivationScore = Math.round((latestEntry.confidence + latestEntry.energy) / 2);
-
-                document.getElementById('burnoutRisk').textContent = burnoutRisk + '%';
-                document.getElementById('anxietyRisk').textContent = anxietyRisk + '%';
-                document.getElementById('emotionalStability').textContent = emotionalStability + '%';
-                document.getElementById('motivationScore').textContent = motivationScore + '%';
-
-                // Stress triggers
-                const triggers = [];
-                if (latestEntry.stress > 60) triggers.push({ name: 'High Stress', severity: 'high' });
-                if (latestEntry.sleep < 50) triggers.push({ name: 'Poor Sleep', severity: 'medium' });
-                if (latestEntry.energy < 40) triggers.push({ name: 'Low Energy', severity: 'medium' });
-                if (latestEntry.confidence < 40) triggers.push({ name: 'Low Confidence', severity: 'low' });
+                // XP progress
+                const xpInLevel = state.totalXP % 100;
+                document.getElementById('currentXP').textContent = xpInLevel;
+                document.getElementById('nextLevelXP').textContent = 100;
+                document.getElementById('xpFill').style.width = xpInLevel + '%';
                 
-                const stressTriggers = document.getElementById('stressTriggers');
-                if (triggers.length > 0) {
-                    stressTriggers.innerHTML = triggers.map(trigger => 
-                        `<span class="trigger-tag ${trigger.severity}">${trigger.name}</span>`
-                    ).join('');
-                } else {
-                    stressTriggers.innerHTML = '<p>No significant stress triggers detected. Keep up the good work!</p>';
+                // Update progress bar ARIA attributes
+                const xpBar = document.querySelector('.xp-bar');
+                if (xpBar) {
+                    xpBar.setAttribute('aria-valuenow', xpInLevel);
                 }
-            }
 
-            // Update journal history
-            const journalHistory = document.getElementById('journalHistory');
-            if (state.journalEntries.length > 0) {
-                journalHistory.innerHTML = state.journalEntries.slice(-5).reverse().map(entry => 
-                    `<div class="card" style="margin-bottom: 10px; padding: 15px;">
-                        <small style="opacity: 0.7;">${new Date(entry.date).toLocaleDateString()}</small>
-                        <p>${entry.text}</p>
-                        <span class="sentiment-badge sentiment-${entry.sentiment}">${entry.sentiment}</span>
+                // Update badges
+                const badgesList = document.getElementById('badgesList');
+                const allBadges = [
+                    { id: 'first-checkin', icon: '🌟', name: 'First Check-in', unlocked: state.checkins >= 1 },
+                    { id: '7-day-streak', icon: '🔥', name: '7-Day Streak', unlocked: state.badges.includes('7-day-streak') },
+                    { id: '30-day-streak', icon: '💪', name: '30-Day Streak', unlocked: state.badges.includes('30-day-streak') },
+                    { id: 'mindful-master', icon: '🧘', name: 'Mindful Master', unlocked: state.checkins >= 10 },
+                    { id: 'journal-keeper', icon: '📝', name: 'Journal Keeper', unlocked: state.badges.includes('journal-keeper') },
+                    { id: 'focus-champion', icon: '🎯', name: 'Focus Champion', unlocked: state.totalXP >= 200 }
+                ];
+
+                badgesList.innerHTML = allBadges.map(badge => 
+                    `<div class="achievement-badge" style="opacity: ${badge.unlocked ? 1 : 0.5};" role="listitem" aria-label="${badge.name} badge, ${badge.unlocked ? 'earned' : 'not yet earned'}">
+                        <span class="achievement-icon" aria-hidden="true">${badge.icon}</span>
+                        ${badge.name}
                     </div>`
                 ).join('');
-            }
 
-            // Apply theme
-            document.body.classList.toggle('light-mode', state.isLightMode);
+                // Update dashboard if we have entries
+                if (state.moodEntries.length > 0) {
+                    const latestEntry = state.moodEntries[state.moodEntries.length - 1];
+                    
+                    document.getElementById('wellnessScore').textContent = latestEntry.wellnessScore + '%';
+                    document.getElementById('scoreCircle').style.background = 
+                        `conic-gradient(var(--primary) ${latestEntry.wellnessScore}%, var(--dark-border) ${latestEntry.wellnessScore}%)`;
+                    
+                    const category = getScoreCategory(latestEntry.wellnessScore);
+                    document.getElementById('scoreCategory').textContent = category.label;
+                    document.getElementById('scoreCategory').className = 'score-category ' + category.class;
+
+                    document.getElementById('todayMood').textContent = latestEntry.moodScore + '%';
+                    document.getElementById('todaySleep').textContent = latestEntry.sleep + '%';
+                    document.getElementById('todayEnergy').textContent = latestEntry.energy + '%';
+                    document.getElementById('todayStress').textContent = latestEntry.stress + '%';
+
+                    // Calculate predictions - Enhanced Algorithm
+                    const burnoutRisk = calculateBurnoutRisk(latestEntry, state.moodEntries);
+                    const anxietyRisk = calculateAnxietyRisk(latestEntry, state.moodEntries);
+                    const emotionalStability = latestEntry.wellnessScore;
+                    const motivationScore = Math.round((latestEntry.confidence + latestEntry.energy + latestEntry.productivity) / 3);
+
+                    document.getElementById('burnoutRisk').textContent = burnoutRisk + '%';
+                    document.getElementById('anxietyRisk').textContent = anxietyRisk + '%';
+                    document.getElementById('emotionalStability').textContent = emotionalStability + '%';
+                    document.getElementById('motivationScore').textContent = motivationScore + '%';
+
+                    // Stress triggers
+                    const triggers = [];
+                    if (latestEntry.stress > 60) triggers.push({ name: 'High Stress', severity: 'high' });
+                    if (latestEntry.sleep < 50) triggers.push({ name: 'Poor Sleep', severity: 'medium' });
+                    if (latestEntry.energy < 40) triggers.push({ name: 'Low Energy', severity: 'medium' });
+                    if (latestEntry.confidence < 40) triggers.push({ name: 'Low Confidence', severity: 'low' });
+                    
+                    const stressTriggers = document.getElementById('stressTriggers');
+                    if (triggers.length > 0) {
+                        stressTriggers.innerHTML = triggers.map(trigger => 
+                            `<span class="trigger-tag ${trigger.severity}" role="listitem">${trigger.name}</span>`
+                        ).join('');
+                    } else {
+                        stressTriggers.innerHTML = '<p>No significant stress triggers detected. Keep up the good work!</p>';
+                    }
+                }
+
+                // Update journal history
+                const journalHistory = document.getElementById('journalHistory');
+                if (state.journalEntries.length > 0) {
+                    journalHistory.innerHTML = state.journalEntries.slice(-5).reverse().map(entry => 
+                        `<div class="card" style="margin-bottom: 10px; padding: 15px;" role="listitem">
+                            <small style="opacity: 0.7;">${new Date(entry.date).toLocaleDateString()}</small>
+                            <p>${entry.text}</p>
+                            <span class="sentiment-badge sentiment-${entry.sentiment}">${entry.sentiment}</span>
+                        </div>`
+                    ).join('');
+                }
+
+                // Apply theme
+                document.body.classList.toggle('light-mode', state.isLightMode);
+            } catch (error) {
+                console.error('Error updating UI:', error);
+            }
         }
 
         // Charts
