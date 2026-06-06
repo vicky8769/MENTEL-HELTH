@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindGuard AI - Mental Wellness Tracker for Students</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-card: rgba(30, 41, 59, 0.8);
+            --dark-border: rgba(71, 85, 105, 0.5);
+            --light-bg: #f8fafc;
+            --light-card: rgba(255, 255, 255, 0.8);
+            --light-border: rgba(226, 232, 240, 0.8);
+            --text-dark: #f1f5f9;
+            --text-light: #1e293b;
+            --glass-dark: rgba(15, 23, 42, 0.7);
+            --glass-light: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a8edea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .light-mode .logo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .theme-toggle {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+            color: var(--text-light);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .nav-tab {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+            color: var(--text-light);
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .card {
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .card {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .mood-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mood-option {
+            background: var(--glass-dark);
+            border: 2px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .mood-option {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+        }
+
+        .mood-option:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        .mood-option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .mood-emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .mood-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: var(--dark-border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .light-mode .slider {
+            background: var(--light-border);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        .slider-value {
+            text-align: right;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+        }
+
+        .light-mode .btn-secondary {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+            color: var(--text-light);
+        }
+
+        .wellness-score {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) 0%, var(--dark-border) 0%);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: var(--dark-bg);
+        }
+
+        .light-mode .score-circle::before {
+            background: var(--light-bg);
+        }
+
+        .score-value {
+            position: relative;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .score-category {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .score-category.thriving { color: var(--success); }
+        .score-category.healthy { color: var(--accent); }
+        .score-category.attention { color: var(--warning); }
+        .score-category.high-risk { color: #f97316; }
+        .score-category.critical { color: var(--danger); }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .stat-item {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .journal-textarea {
+            width: 100%;
+            height: 150px;
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+            border-radius: 15px;
+            padding: 20px;
+            color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .journal-textarea {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+            color: var(--text-light);
+        }
+
+        .journal-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .sentiment-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .sentiment-positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .sentiment-neutral {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .sentiment-negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .coach-message {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .coach-message h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .crisis-mode {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%);
+            border: 2px solid var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.8); }
+        }
+
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 5px;
+            backdrop-filter: blur(10px);
+        }
+
+        .light-mode .achievement-badge {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+        }
+
+        .achievement-icon {
+            font-size: 1.5rem;
+        }
+
+        .streak-counter {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--warning);
+        }
+
+        .xp-bar {
+            height: 10px;
+            background: var(--dark-border);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .light-mode .xp-bar {
+            background: var(--light-border);
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            transition: width 0.5s ease;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .trigger-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 3px;
+            background: var(--glass-dark);
+            border: 1px solid var(--dark-border);
+        }
+
+        .light-mode .trigger-tag {
+            background: var(--glass-light);
+            border-color: var(--light-border);
+        }
+
+        .trigger-tag.high {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .trigger-tag.medium {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .trigger-tag.low {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .breathing-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            animation: breathe 8s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .emergency-contacts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .contact-card {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .contact-card h4 {
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+
+        .contact-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .mood-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+            }
+
+            .score-circle::before {
+                width: 120px;
+                height: 120px;
+            }
+
+            .score-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🧠 MindGuard AI</div>
+            <div class="header-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Theme</button>
+                <div class="achievement-badge">
+                    <span class="achievement-icon">🔥</span>
+                    <span id="streakCount">0</span> Day Streak
+                </div>
+                <div class="achievement-badge">
+                    <span class="achievement-icon">⭐</span>
+                    <span id="xpCount">0</span> XP
+                </div>
+            </div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showSection('mood')">😊 Mood Check-in</button>
+            <button class="nav-tab" onclick="showSection('journal')">📝 Journal</button>
+            <button class="nav-tab" onclick="showSection('coach')">🤖 AI Coach</button>
+            <button class="nav-tab" onclick="showSection('insights')">💡 Insights</button>
+            <button class="nav-tab" onclick="showSection('achievements')">🏆 Achievements</button>
+            <button class="nav-tab" onclick="showSection('emergency')">🆘 Emergency</button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <div class="grid">
+                <div class="card">
+                    <h2>🎯 Mental Wellness Score</h2>
+                    <div class="wellness-score">
+                        <div class="score-circle" id="scoreCircle">
+                            <span class="score-value" id="wellnessScore">--</span>
+                        </div>
+                        <div class="score-category" id="scoreCategory">Check in to see your score</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 Today's Metrics</h2>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayMood">--</div>
+                            <div class="stat-label">Mood</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="todaySleep">--</div>
+                            <div class="stat-label">Sleep</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayEnergy">--</div>
+                            <div class="stat-label">Energy</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayStress">--</div>
+                            <div class="stat-label">Stress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h2>🔥 Burnout Risk</h2>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="burnoutRisk">--</div>
+                            <div class="stat-label">Burnout Risk</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="anxietyRisk">--</div>
+                            <div class="stat-label">Anxiety Risk</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="emotionalStability">--</div>
+                            <div class="stat-label">Emotional Stability</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="motivationScore">--</div>
+                            <div class="stat-label">Motivation</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🎯 Stress Triggers</h2>
+                    <div id="stressTriggers">
+                        <p>Check in regularly to identify your stress triggers</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Mood Trends (Last 7 Days)</h2>
+                <div class="chart-container">
+                    <canvas id="moodChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Wellness Analytics</h2>
+                <div class="chart-container">
+                    <canvas id="wellnessChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mood Check-in Section -->
+        <section id="mood" class="section hidden">
+            <div class="card">
+                <h2>😊 How are you feeling today?</h2>
+                <div class="mood-selector" id="moodSelector">
+                    <div class="mood-option" data-mood="excellent" data-score="100">
+                        <span class="mood-emoji">😄</span>
+                        <span class="mood-label">Excellent</span>
+                    </div>
+                    <div class="mood-option" data-mood="happy" data-score="90">
+                        <span class="mood-emoji">😊</span>
+                        <span class="mood-label">Happy</span>
+                    </div>
+                    <div class="mood-option" data-mood="good" data-score="80">
+                        <span class="mood-emoji">🙂</span>
+                        <span class="mood-label">Good</span>
+                    </div>
+                    <div class="mood-option" data-mood="calm" data-score="75">
+                        <span class="mood-emoji">😌</span>
+                        <span class="mood-label">Calm</span>
+                    </div>
+                    <div class="mood-option" data-mood="neutral" data-score="60">
+                        <span class="mood-emoji">😐</span>
+                        <span class="mood-label">Neutral</span>
+                    </div>
+                    <div class="mood-option" data-mood="slightly-stressed" data-score="50">
+                        <span class="mood-emoji">😕</span>
+                        <span class="mood-label">Slightly Stressed</span>
+                    </div>
+                    <div class="mood-option" data-mood="stressed" data-score="40">
+                        <span class="mood-emoji">😟</span>
+                        <span class="mood-label">Stressed</span>
+                    </div>
+                    <div class="mood-option" data-mood="sad" data-score="30">
+                        <span class="mood-emoji">😔</span>
+                        <span class="mood-label">Sad</span>
+                    </div>
+                    <div class="mood-option" data-mood="anxious" data-score="25">
+                        <span class="mood-emoji">😣</span>
+                        <span class="mood-label">Anxious</span>
+                    </div>
+                    <div class="mood-option" data-mood="burned-out" data-score="15">
+                        <span class="mood-emoji">😫</span>
+                        <span class="mood-label">Burned Out</span>
+                    </div>
+                    <div class="mood-option" data-mood="depressed" data-score="10">
+                        <span class="mood-emoji">😢</span>
+                        <span class="mood-label">Depressed</span>
+                    </div>
+                    <div class="mood-option" data-mood="severe-distress" data-score="5">
+                        <span class="mood-emoji">😭</span>
+                        <span class="mood-label">Severe Distress</span>
+                    </div>
+                </div>
+
+                <div class="slider-container">
+                    <label>😴 Sleep Quality (0-100%)</label>
+                    <input type="range" class="slider" id="sleepSlider" min="0" max="100" value="70">
+                    <div class="slider-value" id="sleepValue">70%</div>
+                </div>
+
+                <div class="slider-container">
+                    <label>⚡ Energy Level (0-100%)</label>
+                    <input type="range" class="slider" id="energySlider" min="0" max="100" value="60">
+                    <div class="slider-value" id="energyValue">60%</div>
+                </div>
+
+                <div class="slider-container">
+                    <label>💪 Confidence Level (0-100%)</label>
+                    <input type="range" class="slider" id="confidenceSlider" min="0" max="100" value="65">
+                    <div class="slider-value" id="confidenceValue">65%</div>
+                </div>
+
+                <div class="slider-container">
+                    <label>😰 Stress Level (0-100%)</label>
+                    <input type="range" class="slider" id="stressSlider" min="0" max="100" value="40">
+                    <div class="slider-value" id="stressValue">40%</div>
+                </div>
+
+                <div class="slider-container">
+                    <label>📚 Study Productivity (0-100%)</label>
+                    <input type="range" class="slider" id="productivitySlider" min="0" max="100" value="55">
+                    <div class="slider-value" id="productivityValue">55%</div>
+                </div>
+
+                <button class="btn" onclick="submitMoodCheckIn()">Submit Check-in</button>
+            </div>
+        </section>
+
+        <!-- Journal Section -->
+        <section id="journal" class="section hidden">
+            <div class="card">
+                <h2>📝 AI Emotional Journal</h2>
+                <p style="margin-bottom: 15px; opacity: 0.8;">Write freely about your thoughts and feelings. Our AI will analyze your emotions.</p>
+                <textarea class="journal-textarea" id="journalEntry" placeholder="How are you really feeling today? What's on your mind? Write whatever comes to mind..."></textarea>
+                <div id="journalSentiment" style="margin-top: 15px;"></div>
+                <button class="btn" onclick="submitJournal()" style="margin-top: 15px;">Save Entry</button>
+            </div>
+
+            <div class="card">
+                <h2>📚 Recent Journal Entries</h2>
+                <div id="journalHistory">
+                    <p>No journal entries yet. Start writing to track your emotional journey.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Coach Section -->
+        <section id="coach" class="section hidden">
+            <div class="card">
+                <h2>🤖 AI Wellness Coach</h2>
+                <div id="coachMessages">
+                    <div class="coach-message">
+                        <h3>👋 Welcome to MindGuard AI!</h3>
+                        <p>I'm your personal wellness coach. I'm here to support you through your exam preparation journey. Check in daily, and I'll provide personalized guidance to help you maintain mental well-being while achieving your academic goals.</p>
+                    </div>
+                </div>
+                <button class="btn" onclick="getCoachAdvice()">Get Personalized Advice</button>
+            </div>
+
+            <div class="card">
+                <h2>🧘 Quick Exercises</h2>
+                <div class="grid">
+                    <button class="btn btn-secondary" onclick="startBreathingExercise()">🫁 Breathing Exercise</button>
+                    <button class="btn btn-secondary" onclick="showMeditation()">🧘 Meditation Guide</button>
+                    <button class="btn btn-secondary" onclick="showStretching()">🤸 Stretching Break</button>
+                    <button class="btn btn-secondary" onclick="showGratitude()">🙏 Gratitude Practice</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Insights Section -->
+        <section id="insights" class="section hidden">
+            <div class="card">
+                <h2>💡 AI Insights Engine</h2>
+                <div id="insightsList">
+                    <p>Check in regularly to generate personalized insights about your mental health patterns.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Stress Trigger Analysis</h2>
+                <div id="triggerAnalysis">
+                    <p>Continue tracking to identify your personal stress triggers.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Weekly Wellness Report</h2>
+                <div id="weeklyReport">
+                    <p>Complete daily check-ins for a full week to generate your wellness report.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements Section -->
+        <section id="achievements" class="section hidden">
+            <div class="card">
+                <h2>🏆 Gamification & Achievements</h2>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="streak-counter" id="streakDisplay">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="xpDisplay">0</div>
+                        <div class="stat-label">Total XP</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="checkinsDisplay">0</div>
+                        <div class="stat-label">Total Check-ins</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="levelDisplay">1</div>
+                        <div class="stat-label">Current Level</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3>Level Progress</h3>
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+                    </div>
+                    <p style="margin-top: 10px; opacity: 0.8;"><span id="currentXP">0</span> / <span id="nextLevelXP">100</span> XP</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎖️ Badges</h2>
+                <div id="badgesList">
+                    <div class="achievement-badge">
+                        <span class="achievement-icon">🌟</span>
+                        First Check-in
+                    </div>
+                    <div class="achievement-badge" style="opacity: 0.5;">
+                        <span class="achievement-icon">🔥</span>
+                        7-Day Streak
+                    </div>
+                    <div class="achievement-badge" style="opacity: 0.5;">
+                        <span class="achievement-icon">💪</span>
+                        30-Day Streak
+                    </div>
+                    <div class="achievement-badge" style="opacity: 0.5;">
+                        <span class="achievement-icon">🧘</span>
+                        Mindful Master
+                    </div>
+                    <div class="achievement-badge" style="opacity: 0.5;">
+                        <span class="achievement-icon">📝</span>
+                        Journal Keeper
+                    </div>
+                    <div class="achievement-badge" style="opacity: 0.5;">
+                        <span class="achievement-icon">🎯</span>
+                        Focus Champion
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Emergency Section -->
+        <section id="emergency" class="section hidden">
+            <div class="card crisis-mode" id="crisisCard" style="display: none;">
+                <h2>🆘 Crisis Mode Activated</h2>
+                <p style="margin-bottom: 20px;">Your wellness score indicates you need immediate support. Please use these resources:</p>
+                
+                <div class="breathing-circle" id="breathingCircle">
+                    Breathe
+                </div>
+                
+                <button class="btn" onclick="startBreathingExercise()">Start Calm Breathing</button>
+            </div>
+
+            <div class="card">
+                <h2>🆘 Emergency Support</h2>
+                <p style="margin-bottom: 20px;">If you're in crisis, please reach out for help immediately:</p>
+                
+                <div class="emergency-contacts">
+                    <div class="contact-card">
+                        <h4>📞 Crisis Helpline</h4>
+                        <p>Call: 988 (US)</p>
+                        <p>Available 24/7</p>
+                    </div>
+                    <div class="contact-card">
+                        <h4>💬 Crisis Text Line</h4>
+                        <p>Text: HOME to 741741</p>
+                        <p>Available 24/7</p>
+                    </div>
+                    <div class="contact-card">
+                        <h4>🌐 International</h4>
+                        <p><a href="https://findahelpline.com" target="_blank">findahelpline.com</a></p>
+                        <p>Global resources</p>
+                    </div>
+                    <div class="contact-card">
+                        <h4>👨‍⚕️ Professional Help</h4>
+                        <p>Contact your counselor</p>
+                        <p>or mental health professional</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🧘 Grounding Exercises</h2>
+                <button class="btn btn-secondary" onclick="show5432Method()">5-4-3-2-1 Grounding</button>
+                <button class="btn btn-secondary" onclick="startBreathingExercise()">Box Breathing</button>
+                <button class="btn btn-secondary" onclick="showProgressiveRelaxation()">Progressive Muscle Relaxation</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // State Management
+        let state = {
+            moodEntries: [],
+            journalEntries: [],
+            currentStreak: 0,
+            totalXP: 0,
+            level: 1,
+            checkins: 0,
+            badges: [],
+            selectedMood: null,
+            isLightMode: false
+        };
+
+        // Load state from localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('mindguardState');
+            if (savedState) {
+                state = { ...state, ...JSON.parse(savedState) };
+            }
+            updateUI();
+        }
+
+        // Save state to localStorage
+        function saveState() {
+            localStorage.setItem('mindguardState', JSON.stringify(state));
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            state.isLightMode = !state.isLightMode;
+            document.body.classList.toggle('light-mode', state.isLightMode);
+            saveState();
+        }
+
+        // Section Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Mood Selection
+        document.querySelectorAll('.mood-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                state.selectedMood = {
+                    mood: this.dataset.mood,
+                    score: parseInt(this.dataset.score)
+                };
+            });
+        });
+
+        // Slider Updates
+        document.querySelectorAll('.slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const valueSpan = document.getElementById(this.id.replace('Slider', 'Value'));
+                if (valueSpan) {
+                    valueSpan.textContent = this.value + '%';
+                }
+            });
+        });
+
+        // Submit Mood Check-in
+        function submitMoodCheckIn() {
+            if (!state.selectedMood) {
+                alert('Please select your mood first');
+                return;
+            }
+
+            const entry = {
+                date: new Date().toISOString(),
+                mood: state.selectedMood.mood,
+                moodScore: state.selectedMood.score,
+                sleep: parseInt(document.getElementById('sleepSlider').value),
+                energy: parseInt(document.getElementById('energySlider').value),
+                confidence: parseInt(document.getElementById('confidenceSlider').value),
+                stress: parseInt(document.getElementById('stressSlider').value),
+                productivity: parseInt(document.getElementById('productivitySlider').value)
+            };
+
+            // Calculate Wellness Score
+            const wellnessScore = calculateWellnessScore(entry);
+            entry.wellnessScore = wellnessScore;
+
+            state.moodEntries.push(entry);
+            state.checkins++;
+            state.totalXP += 10;
+            
+            // Update streak
+            updateStreak();
+            
+            // Check for crisis mode
+            if (wellnessScore < 20) {
+                activateCrisisMode();
+            }
+
+            saveState();
+            updateUI();
+            updateCharts();
+            generateInsights();
+            
+            // Reset form
+            document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+            state.selectedMood = null;
+            
+            alert('Check-in submitted successfully! +10 XP');
+            showSection('dashboard');
+        }
+
+        // Calculate Wellness Score
+        function calculateWellnessScore(entry) {
+            const moodWeight = 0.40;
+            const sleepWeight = 0.20;
+            const energyWeight = 0.15;
+            const confidenceWeight = 0.15;
+            const stressWeight = 0.10;
+
+            const stressInverse = 100 - entry.stress;
+            
+            const score = 
+                (entry.moodScore * moodWeight) +
+                (entry.sleep * sleepWeight) +
+                (entry.energy * energyWeight) +
+                (entry.confidence * confidenceWeight) +
+                (stressInverse * stressWeight);
+
+            return Math.round(score);
+        }
+
+        // Get Score Category
+        function getScoreCategory(score) {
+            if (score >= 80) return { label: 'Thriving', class: 'thriving' };
+            if (score >= 60) return { label: 'Healthy', class: 'healthy' };
+            if (score >= 40) return { label: 'Needs Attention', class: 'attention' };
+            if (score >= 20) return { label: 'High Risk', class: 'high-risk' };
+            return { label: 'Critical', class: 'critical' };
+        }
+
+        // Update Streak
+        function updateStreak() {
+            const today = new Date().toDateString();
+            const lastEntry = state.moodEntries[state.moodEntries.length - 1];
+            
+            if (lastEntry) {
+                const lastDate = new Date(lastEntry.date).toDateString();
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                
+                if (lastDate === yesterday || lastDate === today) {
+                    if (lastDate !== today) {
+                        state.currentStreak++;
+                    }
+                } else {
+                    state.currentStreak = 1;
+                }
+            } else {
+                state.currentStreak = 1;
+            }
+
+            // Award badges
+            if (state.currentStreak >= 7 && !state.badges.includes('7-day-streak')) {
+                state.badges.push('7-day-streak');
+                state.totalXP += 50;
+            }
+            if (state.currentStreak >= 30 && !state.badges.includes('30-day-streak')) {
+                state.badges.push('30-day-streak');
+                state.totalXP += 200;
+            }
+        }
+
+        // Activate Crisis Mode
+        function activateCrisisMode() {
+            document.getElementById('crisisCard').style.display = 'block';
+            showSection('emergency');
+        }
+
+        // Submit Journal
+        function submitJournal() {
+            const entry = document.getElementById('journalEntry').value;
+            if (!entry.trim()) {
+                alert('Please write something in your journal');
+                return;
+            }
+
+            const sentiment = analyzeSentiment(entry);
+            
+            const journalEntry = {
+                date: new Date().toISOString(),
+                text: entry,
+                sentiment: sentiment
+            };
+
+            state.journalEntries.push(journalEntry);
+            state.totalXP += 5;
+            
+            if (state.journalEntries.length >= 5 && !state.badges.includes('journal-keeper')) {
+                state.badges.push('journal-keeper');
+                state.totalXP += 30;
+            }
+
+            saveState();
+            updateUI();
+            
+            document.getElementById('journalEntry').value = '';
+            alert('Journal entry saved! +5 XP');
+        }
+
+        // Simple Sentiment Analysis
+        function analyzeSentiment(text) {
+            const positiveWords = ['happy', 'good', 'great', 'excellent', 'amazing', 'wonderful', 'love', 'excited', 'grateful', 'thankful', 'confident', 'proud', 'accomplished', 'successful', 'progress', 'improvement', 'better', 'best', 'joy', 'peace', 'calm', 'relaxed'];
+            const negativeWords = ['sad', 'stressed', 'anxious', 'worried', 'fear', 'scared', 'depressed', 'hopeless', 'helpless', 'overwhelmed', 'exhausted', 'tired', 'burnout', 'failure', 'fail', 'struggling', 'difficult', 'hard', 'pressure', 'stress', 'anxiety', 'panic', 'angry', 'frustrated', 'disappointed'];
+
+            let positiveCount = 0;
+            let negativeCount = 0;
+
+            const words = text.toLowerCase().split(/\s+/);
+            words.forEach(word => {
+                if (positiveWords.includes(word)) positiveCount++;
+                if (negativeWords.includes(word)) negativeCount++;
+            });
+
+            if (positiveCount > negativeCount) return 'positive';
+            if (negativeCount > positiveCount) return 'negative';
+            return 'neutral';
+        }
+
+        // Get Coach Advice
+        function getCoachAdvice() {
+            const latestEntry = state.moodEntries[state.moodEntries.length - 1];
+            let advice = '';
+
+            if (!latestEntry) {
+                advice = "Start by checking in your mood today so I can provide personalized advice!";
+            } else if (latestEntry.wellnessScore >= 80) {
+                advice = "You're doing amazing! Keep up the great work. Remember to maintain your healthy habits and celebrate your wins. Consider sharing your success strategies with peers who might benefit.";
+            } else if (latestEntry.wellnessScore >= 60) {
+                advice = "You're on the right track! Focus on maintaining your sleep schedule and taking regular study breaks. Try the Pomodoro technique: 25 minutes of focused study followed by a 5-minute break.";
+            } else if (latestEntry.wellnessScore >= 40) {
+                advice = "I notice you need some attention. Let's work on reducing stress. Try these: 1) Prioritize your tasks, 2) Take short walks between study sessions, 3) Practice deep breathing exercises, 4) Ensure you're getting 7-8 hours of sleep.";
+            } else if (latestEntry.wellnessScore >= 20) {
+                advice = "You're at high risk. Please consider: 1) Reducing your study load temporarily, 2) Talking to a counselor or trusted adult, 3) Practicing self-compassion, 4) Taking a complete break day. Your health comes first.";
+            } else {
+                advice = "CRITICAL: Please reach out for help immediately. Call a crisis helpline, talk to a parent/mentor, or contact a mental health professional. You don't have to face this alone. There is support available.";
+            }
+
+            const coachMessages = document.getElementById('coachMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'coach-message';
+            messageDiv.innerHTML = `<h3>🤖 AI Coach Advice</h3><p>${advice}</p>`;
+            coachMessages.appendChild(messageDiv);
+        }
+
+        // Breathing Exercise
+        function startBreathingExercise() {
+            const circle = document.getElementById('breathingCircle');
+            let phase = 0;
+            const phases = ['Breathe In', 'Hold', 'Breathe Out', 'Hold'];
+            const durations = [4000, 4000, 4000, 4000];
+            
+            function nextPhase() {
+                circle.textContent = phases[phase];
+                phase = (phase + 1) % phases.length;
+                setTimeout(nextPhase, durations[phase]);
+            }
+            
+            nextPhase();
+        }
+
+        // Generate Insights
+        function generateInsights() {
+            const insights = [];
+            const entries = state.moodEntries;
+
+            if (entries.length < 3) {
+                document.getElementById('insightsList').innerHTML = '<p>Complete at least 3 check-ins to generate insights.</p>';
+                return;
+            }
+
+            // Analyze patterns
+            const avgStress = entries.reduce((sum, e) => sum + e.stress, 0) / entries.length;
+            const avgSleep = entries.reduce((sum, e) => sum + e.sleep, 0) / entries.length;
+            const avgEnergy = entries.reduce((sum, e) => sum + e.energy, 0) / entries.length;
+
+            if (avgStress > 60) {
+                insights.push("⚠️ Your average stress level is high. Consider incorporating stress management techniques into your daily routine.");
+            }
+
+            if (avgSleep < 60) {
+                insights.push("😴 Your sleep quality is below optimal. Aim for 7-8 hours of quality sleep to improve mental wellness and academic performance.");
+            }
+
+            if (avgEnergy < 50) {
+                insights.push("⚡ Your energy levels are consistently low. Regular exercise and proper nutrition can help boost your energy.");
+            }
+
+            // Trend analysis
+            const recentEntries = entries.slice(-7);
+            const recentAvg = recentEntries.reduce((sum, e) => sum + e.wellnessScore, 0) / recentEntries.length;
+            const overallAvg = entries.reduce((sum, e) => sum + e.wellnessScore, 0) / entries.length;
+
+            if (recentAvg > overallAvg + 10) {
+                insights.push("📈 Your mental wellness has improved recently! Keep up the positive habits.");
+            } else if (recentAvg < overallAvg - 10) {
+                insights.push("📉 Your mental wellness has declined recently. Consider what changed and seek support if needed.");
+            }
+
+            // Display insights
+            const insightsList = document.getElementById('insightsList');
+            insightsList.innerHTML = insights.map(insight => 
+                `<div class="insight-card">${insight}</div>`
+            ).join('');
+
+            // Stress triggers
+            const triggers = [];
+            if (avgStress > 50) triggers.push({ name: 'General Stress', severity: 'high' });
+            if (avgSleep < 50) triggers.push({ name: 'Sleep Issues', severity: 'medium' });
+            if (avgEnergy < 50) triggers.push({ name: 'Low Energy', severity: 'medium' });
+            
+            const triggerAnalysis = document.getElementById('triggerAnalysis');
+            triggerAnalysis.innerHTML = triggers.map(trigger => 
+                `<span class="trigger-tag ${trigger.severity}">${trigger.name}</span>`
+            ).join('');
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update streak and XP
+            document.getElementById('streakCount').textContent = state.currentStreak;
+            document.getElementById('streakDisplay').textContent = state.currentStreak;
+            document.getElementById('xpCount').textContent = state.totalXP;
+            document.getElementById('xpDisplay').textContent = state.totalXP;
+            document.getElementById('checkinsDisplay').textContent = state.checkins;
+            
+            // Calculate level
+            state.level = Math.floor(state.totalXP / 100) + 1;
+            document.getElementById('levelDisplay').textContent = state.level;
+            
+            // XP progress
+            const xpInLevel = state.totalXP % 100;
+            document.getElementById('currentXP').textContent = xpInLevel;
+            document.getElementById('nextLevelXP').textContent = 100;
+            document.getElementById('xpFill').style.width = xpInLevel + '%';
+
+            // Update badges
+            const badgesList = document.getElementById('badgesList');
+            const allBadges = [
+                { id: 'first-checkin', icon: '🌟', name: 'First Check-in', unlocked: state.checkins >= 1 },
+                { id: '7-day-streak', icon: '🔥', name: '7-Day Streak', unlocked: state.badges.includes('7-day-streak') },
+                { id: '30-day-streak', icon: '💪', name: '30-Day Streak', unlocked: state.badges.includes('30-day-streak') },
+                { id: 'mindful-master', icon: '🧘', name: 'Mindful Master', unlocked: state.checkins >= 10 },
+                { id: 'journal-keeper', icon: '📝', name: 'Journal Keeper', unlocked: state.badges.includes('journal-keeper') },
+                { id: 'focus-champion', icon: '🎯', name: 'Focus Champion', unlocked: state.totalXP >= 200 }
+            ];
+
+            badgesList.innerHTML = allBadges.map(badge => 
+                `<div class="achievement-badge" style="opacity: ${badge.unlocked ? 1 : 0.5};">
+                    <span class="achievement-icon">${badge.icon}</span>
+                    ${badge.name}
+                </div>`
+            ).join('');
+
+            // Update dashboard if we have entries
+            if (state.moodEntries.length > 0) {
+                const latestEntry = state.moodEntries[state.moodEntries.length - 1];
+                
+                document.getElementById('wellnessScore').textContent = latestEntry.wellnessScore + '%';
+                document.getElementById('scoreCircle').style.background = 
+                    `conic-gradient(var(--primary) ${latestEntry.wellnessScore}%, var(--dark-border) ${latestEntry.wellnessScore}%)`;
+                
+                const category = getScoreCategory(latestEntry.wellnessScore);
+                document.getElementById('scoreCategory').textContent = category.label;
+                document.getElementById('scoreCategory').className = 'score-category ' + category.class;
+
+                document.getElementById('todayMood').textContent = latestEntry.moodScore + '%';
+                document.getElementById('todaySleep').textContent = latestEntry.sleep + '%';
+                document.getElementById('todayEnergy').textContent = latestEntry.energy + '%';
+                document.getElementById('todayStress').textContent = latestEntry.stress + '%';
+
+                // Calculate predictions
+                const burnoutRisk = Math.max(0, 100 - latestEntry.wellnessScore);
+                const anxietyRisk = Math.min(100, latestEntry.stress * 1.5);
+                const emotionalStability = latestEntry.wellnessScore;
+                const motivationScore = Math.round((latestEntry.confidence + latestEntry.energy) / 2);
+
+                document.getElementById('burnoutRisk').textContent = burnoutRisk + '%';
+                document.getElementById('anxietyRisk').textContent = anxietyRisk + '%';
+                document.getElementById('emotionalStability').textContent = emotionalStability + '%';
+                document.getElementById('motivationScore').textContent = motivationScore + '%';
+
+                // Stress triggers
+                const triggers = [];
+                if (latestEntry.stress > 60) triggers.push({ name: 'High Stress', severity: 'high' });
+                if (latestEntry.sleep < 50) triggers.push({ name: 'Poor Sleep', severity: 'medium' });
+                if (latestEntry.energy < 40) triggers.push({ name: 'Low Energy', severity: 'medium' });
+                if (latestEntry.confidence < 40) triggers.push({ name: 'Low Confidence', severity: 'low' });
+                
+                const stressTriggers = document.getElementById('stressTriggers');
+                if (triggers.length > 0) {
+                    stressTriggers.innerHTML = triggers.map(trigger => 
+                        `<span class="trigger-tag ${trigger.severity}">${trigger.name}</span>`
+                    ).join('');
+                } else {
+                    stressTriggers.innerHTML = '<p>No significant stress triggers detected. Keep up the good work!</p>';
+                }
+            }
+
+            // Update journal history
+            const journalHistory = document.getElementById('journalHistory');
+            if (state.journalEntries.length > 0) {
+                journalHistory.innerHTML = state.journalEntries.slice(-5).reverse().map(entry => 
+                    `<div class="card" style="margin-bottom: 10px; padding: 15px;">
+                        <small style="opacity: 0.7;">${new Date(entry.date).toLocaleDateString()}</small>
+                        <p>${entry.text}</p>
+                        <span class="sentiment-badge sentiment-${entry.sentiment}">${entry.sentiment}</span>
+                    </div>`
+                ).join('');
+            }
+
+            // Apply theme
+            document.body.classList.toggle('light-mode', state.isLightMode);
+        }
+
+        // Charts
+        let moodChart, wellnessChart;
+
+        function updateCharts() {
+            const entries = state.moodEntries.slice(-7);
+            
+            if (entries.length < 2) return;
+
+            const labels = entries.map(e => new Date(e.date).toLocaleDateString());
+            const moodData = entries.map(e => e.moodScore);
+            const wellnessData = entries.map(e => e.wellnessScore);
+
+            // Mood Chart
+            const moodCtx = document.getElementById('moodChart').getContext('2d');
+            if (moodChart) moodChart.destroy();
+            
+            moodChart = new Chart(moodCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Mood Score',
+                        data: moodData,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: state.isLightMode ? '#1e293b' : '#f1f5f9'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                color: state.isLightMode ? '#1e293b' : '#f1f5f9'
+                            },
+                            grid: {
+                                color: state.isLightMode ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.5)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: state.isLightMode ? '#1e293b' : '#f1f5f9'
+                            },
+                            grid: {
+                                color: state.isLightMode ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Wellness Chart
+            const wellnessCtx = document.getElementById('wellnessChart').getContext('2d');
+            if (wellnessChart) wellnessChart.destroy();
+            
+            wellnessChart = new Chart(wellnessCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Wellness Score',
+                        data: wellnessData,
+                        backgroundColor: wellnessData.map(score => {
+                            if (score >= 80) return 'rgba(16, 185, 129, 0.7)';
+                            if (score >= 60) return 'rgba(6, 182, 212, 0.7)';
+                            if (score >= 40) return 'rgba(245, 158, 11, 0.7)';
+                            if (score >= 20) return 'rgba(249, 115, 22, 0.7)';
+                            return 'rgba(239, 68, 68, 0.7)';
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: state.isLightMode ? '#1e293b' : '#f1f5f9'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                color: state.isLightMode ? '#1e293b' : '#f1f5f9'
+                            },
+                            grid: {
+                                color: state.isLightMode ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.5)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: state.isLightMode ? '#1e293b' : '#f1f5f9'
+                            },
+                            grid: {
+                                color: state.isLightMode ? 'rgba(226, 232, 240, 0.5)' : 'rgba(71, 85, 105, 0.5)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Quick exercise functions
+        function showMeditation() {
+            alert('🧘 Meditation Guide:\n\n1. Find a quiet, comfortable space\n2. Close your eyes and take deep breaths\n3. Focus on your breathing\n4. When thoughts arise, acknowledge them and return to breathing\n5. Start with 5-10 minutes daily\n\nRegular meditation reduces stress and improves focus!');
+        }
+
+        function showStretching() {
+            alert('🤸 Quick Stretching Break:\n\n1. Neck rolls (5 each direction)\n2. Shoulder shrugs (10 times)\n3. Arm circles (10 each direction)\n4. Seated spinal twist (each side)\n5. Stand and stretch your arms overhead\n\nTake a 2-minute break every hour to stay energized!');
+        }
+
+        function showGratitude() {
+            alert('🙏 Gratitude Practice:\n\nWrite down 3 things you\'re grateful for today:\n1. ___________________\n2. ___________________\n3. ___________________\n\nPracticing gratitude shifts focus to positivity and reduces stress.');
+        }
+
+        function show5432Method() {
+            alert('5-4-3-2-1 Grounding Technique:\n\n👀 Name 5 things you can see\n👂 Name 4 things you can hear\n👃 Name 3 things you can smell\n✋ Name 2 things you can touch\n👅 Name 1 thing you can taste\n\nThis technique helps ground you in the present moment during anxiety.');
+        }
+
+        function showProgressiveRelaxation() {
+            alert('Progressive Muscle Relaxation:\n\n1. Tense your toes for 5 seconds, then release\n2. Move to your calves, tense and release\n3. Continue up through your body\n4. End with facial muscles\n5. Notice the difference between tension and relaxation\n\nThis reduces physical symptoms of stress.');
+        }
+
+        // Initialize
+        loadState();
+    </script>
+</body>
+</html>
